@@ -1,0 +1,15 @@
+.DS_Store
+Thumbs.db
+wp-cli.local.yml
+node_modules/
+*.sql
+*.tar.gz
+*.zip
+.distignore
+.travis.yml
+Gruntfile.js
+bin/
+package.json
+phpcs.xml.dist
+phpunit.xml.dist
+tests/
