@@ -76,12 +76,6 @@ class Hibou_Post_Type_Admin_Panel {
 
         if ( empty( $start_step_count ) || $start_step_count < 0 ) {
 
-	        //add_settings_error(
-		    //    'daily_my_leg_step_count_settings',
-		    //    'start_step_count',
-		    //    __( 'Start step count is required. Please set it.', 'daily-my-leg-step-count' ),
-		    //    'error'
-	        //);
 		    $new_input[ 'start_step_count' ] = 0;
 
         } else {

@@ -57,23 +57,16 @@ class Hibou_Post_Types {
 			$start_step_count = $option[ 'start_step_count' ];
 
 			$daily_my_leg_remain_count = get_option( 'daily_my_leg_remain_count' );
-			var_dump( $daily_my_leg_remain_count );
 
 			if ( intval( $daily_my_leg_remain_count ) === 0 ) {
 
 				$todays_step = intval( $rheoknee_steps ) - intval( $start_step_count );
 				update_option( 'daily_my_leg_remain_count', $todays_step );
-				var_dump( 'カウントがゼロ' );
 
 			} else {
 
 				$todays_step = intval( $rheoknee_steps ) - intval( $daily_my_leg_remain_count );
-				var_dump( $rheoknee_steps );
-				var_dump( $daily_my_leg_remain_count );
-				var_dump( $todays_step );
-
 				update_option( 'daily_my_leg_remain_count', intval( $rheoknee_steps ) );
-				var_dump( 'カウントがゼロじゃないよ？' );
 
 			}
 
@@ -174,17 +167,42 @@ class Hibou_Post_Types {
 
 		$args = array(
 			'post_type'      => 'daily-leg-steps',
-			'posts_per_page' => 1,
+			'posts_per_page' => -1,
+			'date_query'     => array(
+				array(
+					'year'   => date_i18n( 'Y' ),
+					'month'  => date_i18n( 'm' ),
+					'day'    => date_i18n( 'd' ),
+				),
+			),
 		);
 		$step_posts = get_posts( $args );
 		if ( empty( $step_posts ) ) {
-			update_option( 'daily_my_leg_remain_count', 0 );
-			return;
-		}
+			//update_option( 'daily_my_leg_remain_count', 0 );
+			//return;
+			$total_step = get_option( 'daily_my_leg_max_count' );
+			$todays_step_total = 0;
 
-		$step_posts  = reset( $step_posts );
-		$todays_step = get_post_meta( $step_posts->ID, 'todays_step', true );
-		$total_step  = get_post_meta( $step_posts->ID, 'total_step', true );
+		} else {
+
+			$todays_step_arr = array();
+			$total_step_arr  = array();
+			foreach ( $step_posts as $post ) {
+
+				setup_postdata( $post );
+				$todays_step          = get_post_meta( $post->ID, 'todays_step', true );
+				$todays_step_arr[]    = $todays_step;
+				$each_post_total_step = get_post_meta( $post->ID, 'total_step', true );
+				$total_step_arr[]     = $each_post_total_step;
+
+			}
+			wp_reset_postdata();
+
+			$todays_step_total = array_sum( $todays_step_arr );
+			$total_step        = max( $total_step_arr );
+			update_option( 'daily_my_leg_max_count', $total_step );
+
+		}
 
 		$html  = '';
 		$html .= '<div class="step_wrap">' . "\n";
@@ -194,7 +212,7 @@ class Hibou_Post_Types {
 		$html .= '</div>' . "\n";
 
 		$html .= '<div class="todays_step">' . "\n";
-		$html .= '<p class="step_content">Today: ' . intval( $todays_step ) . '</p>' . "\n";
+		$html .= '<p class="step_content">Today: ' . intval( $todays_step_total ) . '</p>' . "\n";
 		$html .= '</div>' . "\n";
 		$html .= '</div>' . "\n";
 
